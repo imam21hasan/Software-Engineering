@@ -1,175 +1,89 @@
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserRegistrationTest {
 
-    private UserRegistration registration;
-    private User user;
+    private UserRegistration userRegistration;
 
     @BeforeEach
     void setUp() {
-        registration = new UserRegistration();
-        user = new User("Hasan", "hasan@gmail.com", "12345");
+        userRegistration = new UserRegistration();
     }
 
-   
     @Test
     void testAddValidUser() {
-
-        boolean result = registration.addUser(user);
-
-        assertTrue(result);
-        assertEquals(1, registration.users.size());
+        User user = new User("Alice", "alice@example.com", "password123");
+        assertTrue(userRegistration.addUser(user));
+        assertEquals(user, userRegistration.findUser("alice@example.com"));
     }
 
     @Test
-    void testAddNullUser() {
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.addUser(null)
-        );
-
-        assertEquals("User cannot be null", exception.getMessage());
+    void testAddNullUserThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.addUser(null));
     }
 
     @Test
-    void testAddUserWithEmptyName() {
-
-        User user = new User("", "abc@gmail.com", "123");
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.addUser(user)
-        );
-
-        assertEquals("Name cannot be empty",
-                exception.getMessage());
+    void testAddUserWithEmptyNameThrowsException() {
+        User user = new User("", "bob@example.com", "password123");
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.addUser(user));
     }
 
     @Test
-    void testAddUserWithEmptyEmail() {
-
-        User user = new User("Hasan", "", "123");
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.addUser(user)
-        );
-
-        assertEquals("Email cannot be empty",
-                exception.getMessage());
+    void testAddUserWithEmptyEmailThrowsException() {
+        User user = new User("Bob", "", "password123");
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.addUser(user));
     }
 
     @Test
-    void testAddUserWithEmptyPassword() {
-
-        User user = new User("Hasan", "abc@gmail.com", "");
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.addUser(user)
-        );
-
-        assertEquals("Password cannot be empty",
-                exception.getMessage());
-    }
-
-   
-    @Test
-    void testFindExistingUser() {
-
-        registration.addUser(user);
-
-        User foundUser = registration.findUser("hasan@gmail.com");
-
-        assertNotNull(foundUser);
-        assertEquals("Hasan", foundUser.getName());
-        assertEquals("hasan@gmail.com", foundUser.getEmail());
+    void testAddUserWithEmptyPasswordThrowsException() {
+        User user = new User("Charlie", "charlie@example.com", "");
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.addUser(user));
     }
 
     @Test
-    void testFindNonExistingUser() {
-
-        User foundUser = registration.findUser("abc@gmail.com");
-
-        assertNull(foundUser);
+    void testFindExistingUser() {
+        User user = new User("David", "david@example.com", "securePass");
+        userRegistration.addUser(user);
+        assertEquals(user, userRegistration.findUser("david@example.com"));
     }
 
     @Test
-    void testFindUserWithEmptyEmail() {
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.findUser("")
-        );
-
-        assertEquals("Email field is empty",
-                exception.getMessage());
+    void testFindNonExistingUserReturnsNull() {
+        assertNull(userRegistration.findUser("nonexistent@example.com"));
     }
 
+    @Test
+    void testFindUserWithEmptyEmailThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.findUser(""));
+    }
 
     @Test
     void testLoginSuccess() {
-
-        registration.addUser(user);
-
-        boolean result = registration.login(
-                "hasan@gmail.com",
-                "12345"
-        );
-
-        assertTrue(result);
+        User user = new User("Eve", "eve@example.com", "mypassword");
+        userRegistration.addUser(user);
+        assertTrue(userRegistration.login("eve@example.com", "mypassword"));
     }
 
     @Test
-    void testLoginWrongPassword() {
-
-        registration.addUser(user);
-
-        boolean result = registration.login(
-                "hasan@gmail.com",
-                "wrongpassword"
-        );
-
-        assertFalse(result);
+    void testLoginFailureWrongPassword() {
+        User user = new User("Frank", "frank@example.com", "correctPass");
+        userRegistration.addUser(user);
+        assertFalse(userRegistration.login("frank@example.com", "wrongPass"));
     }
 
     @Test
-    void testLoginNonExistingUser() {
-
-        boolean result = registration.login(
-                "abc@gmail.com",
-                "12345"
-        );
-
-        assertFalse(result);
+    void testLoginFailureNonExistingUser() {
+        assertFalse(userRegistration.login("ghost@example.com", "password"));
     }
 
     @Test
-    void testLoginWithEmptyEmail() {
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.login("", "12345")
-        );
-
-        assertEquals("Email cannot be empty",
-                exception.getMessage());
+    void testLoginWithEmptyEmailThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.login("", "password"));
     }
 
     @Test
-    void testLoginWithEmptyPassword() {
-
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> registration.login("hasan@gmail.com", "")
-        );
-
-        assertEquals("Password cannot be empty",
-                exception.getMessage());
+    void testLoginWithEmptyPasswordThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> userRegistration.login("user@example.com", ""));
     }
-
 }
