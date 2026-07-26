@@ -1,105 +1,90 @@
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BankAccountTest {
 
-    BankAccount account = new BankAccount("Rakib", 5000);
-
-    // ====================================
-    // assertEquals()
-    // ====================================
-
-    @Test
-    void testDepositValid() {
-        account.deposit(1000);
-        assertEquals(6000, account.getBalance());
+    private BankAccount acc;
+    
+    @BeforeEach
+    void setup() {
+    	acc=new BankAccount(100);
     }
-
+    
     @Test
-    void testWithdrawValid() {
-        account.withdraw(2000);
-        assertEquals(3000, account.getBalance());
+    void createValidBankAccount() {
+    	assertEquals(100,acc.getAccount());
     }
-
-    // ====================================
-    // assertThrows()
-    // ====================================
-
+    
     @Test
-    void testDepositInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            account.deposit(-500);
-        });
+    void createInvalidBankAccount(){
+    	Exception e=assertThrows(IllegalArgumentException.class,()-> new BankAccount(0));
+    	assertEquals("Account Number must be positive",e.getLocalizedMessage());
     }
-
+    
     @Test
-    void testWithdrawInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            account.withdraw(10000);
-        });
+    void primaryAccount() {
+    	assertEquals(100,acc.getAccount());
     }
-
+    
     @Test
-    void testNegativeInitialBalance() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BankAccount("Rahim", -100);
-        });
+    void validSetAccount() {
+    	acc.setAccount(1002);
+    	assertEquals(1002,acc.getAccount());
     }
-
-    // ====================================
-    // assertNull()
-    // ====================================
-
+    
     @Test
-    void testAccountTypeInvalid() {
-        assertNull(account.getAccountType("ABC"));
+    void invalidSetAccount() {
+    	Exception e=assertThrows(IllegalArgumentException.class,()-> acc.setAccount(0));
+    	
+    	assertEquals("Account Number must be positive",e.getMessage());
     }
-
+    
     @Test
-    void testAccountTypeNull() {
-        assertNull(account.getAccountType(null));
+    void initailBalance() {
+    	assertEquals(0,acc.getBalance());
     }
-
-    // ====================================
-    // assertNotNull()
-    // ====================================
-
+    
     @Test
-    void testAccountTypeValid() {
-        assertNotNull(account.getAccountType("SAV"));
+    void validDeposit() {
+    	acc.deposit(500);
+    	
+    	assertEquals(500,acc.getBalance());
     }
-
+    
     @Test
-    void testAccountHolderNotNull() {
-        assertNotNull(account.getAccountHolder());
+    void invalidDeposit(){
+    	Exception e=assertThrows(IllegalArgumentException.class,()-> acc.deposit(0));
+    	
+    	assertEquals("Deposit amount must be greater than 0",e.getMessage());
     }
-
-    // ====================================
-    // assertTrue()
-    // ====================================
-
+    
     @Test
-    void testMinimumBalanceValid() {
-        assertTrue(account.hasMinimumBalance());
+    void validWithdraw() {
+    	acc.deposit(1000);
+    	acc.withdraw(600);
+    	assertEquals(400,acc.getBalance());
     }
-
+    
     @Test
-    void testSavingsAccountValid() {
-        assertTrue(account.getAccountType("SAV").equals("Savings"));
+    void invalidWithdraw() {
+    	Exception e=assertThrows(IllegalArgumentException.class,()->acc.withdraw(0));
+    	
+    	assertEquals("Withdraw amount must be greater than 0",e.getMessage());
     }
-
-    // ====================================
-    // assertFalse()
-    // ====================================
-
+    
     @Test
-    void testMinimumBalanceInvalid() {
-        BankAccount acc = new BankAccount("Karim", 500);
-        assertFalse(acc.hasMinimumBalance());
+    void excessWithdraw() {
+    	acc.deposit(500);
+    	Exception e=assertThrows(IllegalStateException.class,()->acc.withdraw(600));
+    	
+    	assertEquals("Insufficient Balance",e.getMessage());
     }
-
-    @Test
-    void testCurrentIsNotSavings() {
-        assertFalse("Savings".equals(account.getAccountType("CUR")));
-    }
+    
+    
+    
+    
+    
+    
 }
